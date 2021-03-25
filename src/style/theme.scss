@@ -1,0 +1,94 @@
+//颜色定义规范
+$background-color-theme: #e8e8e8; //背景主题颜色默认
+$background-color-theme1: #e8e8e8; //背景主题颜色1
+$background-color-theme2: #1f1f1f; //背景主题颜色2
+
+$font-color-theme: #1f1f1f; //字体主题颜色默认
+$font-color-theme1: #1f1f1f; //字体主题颜色1
+$font-color-theme2: #e8e8e8; //字体主题颜色2
+
+$background-table-color-theme: #f4f4f4;
+$background-table-color-theme1: #f4f4f4;
+$background-table-color-theme2: #2e2e2e;
+
+$button-border-color-theme: #1f1f1f;
+$button-border-color-theme1: #1f1f1f;
+$button-border-color-theme2: #e8e8e8;
+
+$idxbutton-border-color-theme: #e8e8e8;
+$idxbutton-border-color-theme1: #e8e8e8;
+$idxbutton-border-color-theme2: #1f1f1f;
+
+$button-bg-color-theme: #f4f4f4;
+$button-bg-color-theme1: #f4f4f4;
+$button-bg-color-theme2: #2e2e2e;
+
+$tb-bgcolor-theme: #2e2e2e;
+$tb-bgcolor-theme1: #2e2e2e;
+$tb-bgcolor-theme2: #f4f4f4;
+
+$button-background-color-theme: #1f1f1f;
+$button-background-color-theme1: #1f1f1f;
+$button-background-color-theme2: #e8e8e8;
+
+$idxfont-button-color-theme: #e8e8e8;
+$idxfont-button-color-theme1: #e8e8e8;
+$idxfont-button-color-theme2: #1f1f1f;
+
+$font-color-shallow0: #000;
+$font-color-shallow1: #111;
+$font-color-shallow2: #222;
+$font-color-shallow3: #333;
+$font-color-shallow4: #444;
+$font-color-shallow5: #555;
+$font-color-shallow6: #666;
+$font-color-shallow7: #777;
+$font-color-shallow8: #888;
+$font-color-shallow9: #999;
+$font-color-shallowdb: #dbdbdb;
+
+// $background-image:url("~@/assets/images/001.png");
+// $background-image-theme1:url("~@/assets/images/002.png");
+// $background-image-theme2:url("~@/assets/images/003.png");
+
+//字体定义规范
+$font_little_s: 10px;
+$font_little: 12px;
+$font_medium_s: 14px;
+$font_medium: 16px;
+$font_large_s: 18px;
+$font_large: 20px;
+
+//引入方式
+// #content {
+//   overflow: hidden;
+// }
+// p {
+//   @include px2rem(width, 100px);
+//   @include px2rem(height, 100px);
+//   @include px2rem(margin, 20px);
+//   float: left;
+// }
+// .aaaa {
+//   @include px2rem(width, 200px);
+//   @include px2rem(height, 200px);
+//   @include px2rem(margin, 20px);
+//   @include bg_color($background-color-theme);
+// }
+// .aaaa1 {
+//   @include px2rem(width, 200px);
+//   @include px2rem(height, 200px);
+//   @include px2rem(margin, 20px);
+// }
+// span {
+//   @include font_color($font-color-theme);
+// }
+// p:first-child {
+//   background-color: red;
+// }
+// p:nth-child(2) {
+//   background-color: #652bf5;
+// }
+// p:last-child {
+//   background-color: deepskyblue;
+// }

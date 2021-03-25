@@ -1,0 +1,12 @@
+@font-face {
+  font-family: 'Archivo';
+  src: url(./Archivo-Regular.ttf);
+}
+@font-face {
+  font-family: 'Bold';
+  src: url(./Archivo-Bold.ttf);
+}
+@font-face {
+  font-family: 'Medium';
+  src: url(./Archivo-Medium.ttf);
+}
