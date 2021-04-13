@@ -10,10 +10,11 @@ export default new Vuex.Store({
     IsMar: false,
     Dialog: false,
     IsExits: 'no',
-    BalanceOf: '0',
+    BalanceOf: {},
     SuBalanceOf: '0',
     Network: '',
     Pending: [{ id: 1 }],
+    MetaMaskAddress: '',
   },
   mutations: {
     setTheme(state, theme) {
@@ -42,6 +43,9 @@ export default new Vuex.Store({
     },
     setPending(state, val) {
       state.Pending = val
+    },
+    setMetaMaskAddress(state, val) {
+      state.MetaMaskAddress = val
     },
   },
   actions: {},

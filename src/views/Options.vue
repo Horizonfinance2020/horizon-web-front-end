@@ -2,7 +2,7 @@
   <div class="box">
     <div class="right" @click="goPeriod">
       <p>FACTORY</p>
-      <span>BID INTREST RATES OVER A PERIOD</span>
+      <span>BID INTEREST RATES OVER A PERIOD</span>
       <span>OF 2 WEEKS OR A MONTH</span>
     </div>
     <div class="left" @click="goHistory">

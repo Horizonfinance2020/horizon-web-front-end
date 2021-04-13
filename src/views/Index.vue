@@ -5,7 +5,7 @@
         class="title"
       >Horizon Finance allows users to deposit their funds and compete for preferential payment by capping their yield, thereby outperforming or underperforming the benchmark interest rate.</span>
       <button class="logo_btn" @click="jump">SEE HORIZON MARKETS</button>
-      <span>Backed By Alameda Research, Framework Ventures, Mechanism Capital, DeFiance Capital, Spartan Group, NGC, Incuba Alpha, Ruby Capital, Robot Ventures.</span>
+      <span>Backed By Alameda Research, Framework Ventures, Mechanism Capital, DeFiance Capital, Spartan Group, NGC, Incuba Alpha, Ruby Capital, Robot Ventures, ASResearch.</span>
     </div>
     <div class="right">
       <div class="imgs">
@@ -20,7 +20,7 @@
 
 <script>
 import MetaMask from './MetaMask.vue'
-import DialogForm from '../components/dialog-form.vue'
+import DialogForm from '../components/DialogForm.vue'
 import { mapMutations, mapState } from 'vuex'
 import { NetWork } from '../config.js'
 export default {
@@ -78,7 +78,7 @@ export default {
       }
       if (this.IsExits === 'no' && eth_accounts && eth_accounts.length > 0) {
         this.$router.push({
-          path: '/marktes',
+          path: '/markets',
         })
       } else {
         this.$message({

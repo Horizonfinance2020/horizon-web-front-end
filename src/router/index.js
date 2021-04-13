@@ -24,7 +24,6 @@ const routes = [
         component: () => import('../views/Index.vue'),
         meta: {
           title: '主页',
-          // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
       {
@@ -33,15 +32,14 @@ const routes = [
         component: () => import('../views/PeriodEnd.vue'),
         meta: {
           title: '主页',
-          // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
       {
-        path: '/marktes',
-        name: 'marktes',
-        component: () => import('../views/Marktes.vue'),
+        path: '/markets',
+        name: 'markets',
+        component: () => import('../views/Markets.vue'),
         meta: {
-          title: 'Marktes',
+          title: 'Markets',
           // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
@@ -51,7 +49,6 @@ const routes = [
         component: () => import('../views/Options.vue'),
         meta: {
           title: 'Options',
-          // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
       {
@@ -60,7 +57,6 @@ const routes = [
         component: () => import('../views/Period.vue'),
         meta: {
           title: 'Period',
-          // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
       {
@@ -69,7 +65,6 @@ const routes = [
         component: () => import('../views/Trading.vue'),
         meta: {
           title: 'Trading',
-          // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
       {
@@ -78,7 +73,6 @@ const routes = [
         component: () => import('../views/History.vue'),
         meta: {
           title: 'History',
-          // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
       {
@@ -87,11 +81,19 @@ const routes = [
         component: () => import('../views/AddMarket.vue'),
         meta: {
           title: 'AddMarket',
-          // requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
       },
     ],
   },
+  // {
+  //   path: '/notFound',
+  //   name: 'notFound',
+  //   component: () => import('../views/404.vue'),
+  // },
+  // {
+  //   path: '*',
+  //   redirect: '/notFound',
+  // },
 ]
 
 const router = new VueRouter({
