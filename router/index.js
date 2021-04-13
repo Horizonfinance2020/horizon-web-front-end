@@ -85,6 +85,15 @@ const routes = [
       },
     ],
   },
+  // {
+  //   path: '/notFound',
+  //   name: 'notFound',
+  //   component: () => import('../views/404.vue'),
+  // },
+  // {
+  //   path: '*',
+  //   redirect: '/notFound',
+  // },
 ]
 
 const router = new VueRouter({

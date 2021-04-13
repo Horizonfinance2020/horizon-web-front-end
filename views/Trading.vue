@@ -6,7 +6,7 @@
         <p v-if="allow===0">You need to agree to allow linking your wallet.</p>
         <p
           v-else
-        >Select the size and IR you want to bid over a {{name[$route.query.code-1]}} period.</p>
+        >Select the size and IR you want to bid over a {{periodName[$route.query.code-1]}} period.</p>
         <button class="bu_btn" @click="setApproves" :disabled="approves" v-if="allow===0">APPROVE</button>
         <button v-else class="bu_btn" @click="setOrder">CONFIRM</button>
         <span @click="goPeriod">CANCEL AND CHOOSE OTHER PERIOD</span>
@@ -18,7 +18,7 @@
             style="border-bottom:none;;font-family: 'Bold';"
           >{{list[calssNum].ratio}}</span> in
           <span style="border-bottom:none;font-family: 'Bold';">{{money}} {{Smile}}</span>
-          for the {{name[$route.query.code-1]}} market.
+          for the {{periodName[$route.query.code-1]}} market.
         </p>
         <button class="bu_btn" @click="goPeriod">BID AGAIN</button>
         <span @click="goHistory">SEE ON THE HISTORY</span>
@@ -27,18 +27,13 @@
         <div class="main-c-top">
           <span class="title">SIZE</span>
           <br />
-          <el-input-number
-            v-model="money"
-            :min="0"
-            :max="maxMoney"
-            :controls="false"
-            @blur="setMoney"
-          ></el-input-number>
+          <el-input v-model="money" @input="setMoney" onkeyup="value=value.replace(/[^\d^\.]/g,'')"></el-input>
           <el-slider
-            v-model="money"
+            v-model="slider"
             :show-tooltip="false"
             :min="0"
-            :max="maxSize"
+            :max="maxMoney"
+            @input="setSlider"
             style="margin-left: 10px;"
           />
           <span class="yusd">
@@ -217,6 +212,8 @@ import {
 } from '@/common/web3'
 import { mapState, mapMutations } from 'vuex'
 import { BigNumber } from 'bignumber.js'
+import { NameMapping, PeriodName, DayMapping } from '../config.js'
+
 export default {
   components: {
     TitleCard,
@@ -225,15 +222,13 @@ export default {
     return {
       tag: 'one',
       tags: null,
-      money: 0,
-      isMoney: false,
+      money: '0',
+      slider: 0,
       cycle: 'upcoming',
       calssNum: null,
       flo: false,
       btnName: 'CONFIRM',
-      moneyNum: 0,
       list: [],
-      listTo: [],
       previous: {
         SystemIncome: 0,
         SystemAPY: 0,
@@ -250,17 +245,20 @@ export default {
         Dashboard: [],
       },
       allow: 0,
-      metaMaskAddress: '',
-      name: ['1 week', '2 weeks', '1 month'],
-      codes: ['oneweek', 'towweek', 'onemonth'],
-      scodes: ['sushione', 'sushitwo', 'sushimonth'],
-      day: [7, 14, 30],
+      periodName: [],
+      metaMaskAddres: '',
     }
   },
   computed: {
-    ...mapState(['Smile', 'SuBalanceOf', 'BalanceOf', 'Pending']),
+    ...mapState([
+      'Smile',
+      'SuBalanceOf',
+      'BalanceOf',
+      'Pending',
+      'MetaMaskAddress',
+    ]),
     dataType() {
-      let Data = this.cycle === 'upcoming' ? this.upcoming : this.previous
+      const Data = this.cycle === 'upcoming' ? this.upcoming : this.previous
       return Data
     },
     maxValue() {
@@ -269,11 +267,9 @@ export default {
         : Number(this.dataType.MaxValue)
     },
     listData() {
-      const data = JSON.parse(JSON.stringify(this.list)).map((item) => {
-        return {
-          ...item,
-        }
-      })
+      const data = JSON.parse(JSON.stringify(this.list)).map((item) => ({
+        ...item,
+      }))
       if (this.calssNum !== null) {
         // const max = Number(data[this.calssNum].value) + this.money
         return data.map((item) => {
@@ -286,44 +282,20 @@ export default {
           )
           return { ...item }
         })
-        // if (max > this.maxValue) {
-        //   return data.map((item) => {
-        //     item.for = Math.ceil(
-        //       ((Number(item.value) - Number(item.bids)) / this.max) * 100
-        //     )
-        //     item.bids = Math.ceil((Number(item.bids) / max) * 100)
-        //     data[this.calssNum].bids = Math.ceil((this.money / max) * 100)
-        //     return { ...item }
-        //   })
-        // } else {
-        //   return data.map((item) => {
-        //     item.for = Math.ceil(
-        //       ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100
-        //     )
-        //     item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100)
-        //     data[this.calssNum].bids = Math.ceil(
-        //       (this.money / this.maxValue) * 100
-        //     )
-        //     return { ...item }
-        //   })
-        // }
-      } else {
-        return data.map((item) => {
-          item.for = Math.ceil(
-            ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100
-          )
-          item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100)
-          return { ...item }
-        })
       }
+      return data.map((item) => {
+        item.for = Math.ceil(
+          ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100
+        )
+        item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100)
+        return { ...item }
+      })
     },
     listDataTo() {
       const data = JSON.parse(JSON.stringify(this.dataType.Dashboard)).map(
-        (item) => {
-          return {
-            ...item,
-          }
-        }
+        (item) => ({
+          ...item,
+        })
       )
       return data.map((item) => {
         item.for = Math.ceil(
@@ -339,21 +311,15 @@ export default {
       return this.btnName === 'BID AGAIN' ? '100%' : '67%'
     },
     maxMoney() {
-      return this.Smile === 'yyCRV'
-        ? Number(this.BalanceOf)
-        : Number(this.SuBalanceOf)
-    },
-    maxSize() {
-      return this.Smile === 'yyCRV'
-        ? Math.ceil(Number(this.BalanceOf))
-        : Math.ceil(Number(this.SuBalanceOf))
+      return Number(this.BalanceOf[this.Smile])
     },
   },
   async mounted() {
+    this.periodName = PeriodName
     const eth_accounts = await ethereum.request({
       method: 'eth_accounts',
     })
-    this.metaMaskAddress =
+    this.metaMaskAddres =
       eth_accounts && eth_accounts.length > 0 ? eth_accounts[0] : ''
     this.getAllowances()
     this.getData()
@@ -368,7 +334,9 @@ export default {
   },
   methods: {
     ...mapMutations(['setPending']),
-
+    setSlider(val) {
+      this.money = isNaN(val) ? 0 : Number(val)
+    },
     setColor(item) {
       if (item !== this.tags) {
         this.tags = item
@@ -380,20 +348,26 @@ export default {
       }
     },
     divWidth(max, num) {
-      return parseInt(max) === 0 ? '0%' : (num / max).toFixed(2) * 100 + '%'
+      return parseInt(max) === 0 ? '0%' : `${(num / max).toFixed(2) * 100}%`
     },
     fixedFloat(num) {
       return parseFloat(num.toString().match(/^\d+(?:\.\d{0,2})?/)[0])
     },
-    setMoney() {
-      if (typeof this.money === 'undefined') {
-        this.money = 0
+    setMoney(val) {
+      const strArr = val.toString().split('.')
+      if (strArr.length > 2) {
+        this.money = `${strArr[0]}.${strArr[1]}`
+      } else {
+        this.slider =
+          !val || typeof val === 'undefined' || isNaN(Number(val))
+            ? 0
+            : Number(val)
       }
     },
     getData() {
       getDashboard(
-        this.metaMaskAddress,
-        this.day[this.$route.query.code - 1],
+        this.metaMaskAddres,
+        DayMapping[this.$route.query.code - 1],
         this.Smile
       ).then((res) => {
         if (res.status === 200) {
@@ -406,24 +380,21 @@ export default {
     setApproves() {
       try {
         this.approves = true
-        const name =
-          this.Smile === 'yyCRV'
-            ? this.codes[this.$route.query.code - 1]
-            : this.scodes[this.$route.query.code - 1]
-        let params = setApprove(
+        const name = NameMapping[this.Smile][this.$route.query.code - 1]
+        const params = setApprove(
           new BigNumber(1e28).toString(10),
           name,
-          this.metaMaskAddress,
+          this.metaMaskAddres,
           this.Smile
         )
         ethereum.sendAsync(
           {
             method: 'eth_sendTransaction',
-            params: params,
+            params,
             loadingDefaults: true,
-            from: this.metaMaskAddress, // Provide the user's account to use.
+            from: this.metaMaskAddres, // Provide the user's account to use.
           },
-          //TODO 合约出错 ，停止
+          // TODO 合约出错 ，停止
           (err, result) => {
             if (result.result) {
               const obj = {
@@ -454,16 +425,13 @@ export default {
       }
     },
     async getAllowances() {
-      const name =
-        this.Smile === 'yyCRV'
-          ? this.codes[this.$route.query.code - 1]
-          : this.scodes[this.$route.query.code - 1]
+      const name = NameMapping[this.Smile][this.$route.query.code - 1]
       this.allow = Number(
-        await getAllowance(this.metaMaskAddress, name, this.Smile)
+        await getAllowance(this.metaMaskAddres, name, this.Smile)
       )
     },
     setMaxMoney() {
-      this.money = this.maxMoney
+      this.slider = this.maxMoney
     },
     setCycle(val) {
       this.cycle = val
@@ -499,25 +467,22 @@ export default {
         })
         return
       }
-      const number = new BigNumber(this.money).multipliedBy(1e18).toString(10)
-      const name =
-        this.Smile === 'yyCRV'
-          ? this.codes[this.$route.query.code - 1]
-          : this.scodes[this.$route.query.code - 1]
-      let params = getHGateKeeper(
+      const number = new BigNumber(this.money).multipliedBy(1e18).toFixed(0)
+      const name = NameMapping[this.Smile][this.$route.query.code - 1]
+      const params = getHGateKeeper(
         number,
-        this.metaMaskAddress,
+        this.metaMaskAddres,
         name,
         this.list[this.calssNum].ratio_for_bid
       )
       ethereum.sendAsync(
         {
           method: 'eth_sendTransaction',
-          params: params,
+          params,
           loadingDefaults: true,
-          from: this.metaMaskAddress, // Provide the user's account to use.
+          from: this.metaMaskAddres, // Provide the user's account to use.
         },
-        //TODO 合约出错 ，停止
+        // TODO 合约出错 ，停止
         (err, result) => {
           if (result.result) {
             const obj = {
@@ -539,7 +504,7 @@ export default {
       )
     },
     setPendings(val) {
-      let list = [...this.Pending]
+      const list = [...this.Pending]
       list.push(val)
       this.setPending(list)
       localStorage.setItem('Pending', JSON.stringify(list))
@@ -574,7 +539,7 @@ export default {
       flex-direction: column;
       align-items: center;
       p {
-        margin: 15% 10%;
+        margin: 10%;
         font-size: 50px;
         // word-wrap: break-word;
         // word-break: break-all;
@@ -641,9 +606,9 @@ export default {
           margin: 15px 0;
           color: #5784c1;
         }
-        /deep/ .el-input-number {
-          width: 100% !important;
-        }
+        // /deep/ .el-input-number {
+        //   width: 100% !important;
+        // }
         .money {
           font-size: 50px;
           display: block;
@@ -678,7 +643,7 @@ export default {
       .main-c-bottom {
         flex: 1;
         // min-height: 260px;
-        // overflow-y: auto;
+        overflow-y: auto;
         .bu_btn {
           font-size: 18px;
           @include font_color($font-color-theme);
@@ -723,7 +688,6 @@ export default {
     }
     .main-r {
       min-width: 600px;
-      min-height: 600px;
       overflow-y: auto;
       .r-title {
         width: 100%;

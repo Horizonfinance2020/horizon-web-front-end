@@ -2,27 +2,27 @@
   <div class="home">
     <el-container direction="vertical" style="height:100%">
       <el-header>
-        <new-header />
+        <header-bar />
       </el-header>
       <el-main>
         <router-view />
       </el-main>
       <el-footer>
-        <new-footer />
+        <footer-bar />
       </el-footer>
     </el-container>
   </div>
 </template>
 
 <script>
-import NewHeader from '@/components/NewHeader.vue'
-import NewFooter from '@/components/NewFooter.vue'
+import HeaderBar from '@/components/HeaderBar.vue'
+import FooterBar from '@/components/FooterBar.vue'
 
 export default {
   name: 'Home',
   components: {
-    NewHeader,
-    NewFooter,
+    HeaderBar,
+    FooterBar,
   },
   methods: {
     changeTheme(theme) {

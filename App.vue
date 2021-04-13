@@ -9,7 +9,6 @@ import { mapMutations } from 'vuex'
 export default {
   name: 'App',
   created() {
-
     const theme = localStorage.getItem('data-theme')
       ? localStorage.getItem('data-theme')
       : 'theme1'

@@ -25,7 +25,7 @@
         </ul>
         <ul v-for="(item , idx ) in tableTop" :key="idx">
           <li style="cursor: pointer;">
-            <span class="txHash" @click="copy(item.txhash)">{{ellipsis(item.txhash)}}</span>
+            <span class="txHash" @click="copy(item.txhash)">{{Ellipsis(item.txhash,0,5,62, 66)}}</span>
             <span class="txIcon" @click="openEch(item.txhash)">
               <svg-icon iconClass="forwarding" style="font-size: 14px"></svg-icon>
             </span>
@@ -33,7 +33,7 @@
           <li>{{item.period}}</li>
           <li>{{item.IR}}</li>
           <li style="text-align: center">{{parFloat(item.Size)}}</li>
-          <li style="text-align: center;width:220px">{{claimTime(item.claim_time_left)}}</li>
+          <li style="text-align: center;width:220px">{{ClaimTime(item.claim_time_left)}}</li>
           <!-- <el-tooltip class="item" effect="dark" :content="dateFormat(item.Timer)" placement="top">
             <li style="cursor: pointer">{{dateFormat(item.Timer)}}</li>
           </el-tooltip>-->
@@ -106,11 +106,12 @@ import {
   getHGateKeeper,
   getMyBF,
 } from '@/common/web3'
-import { Tag } from '../config.js'
-import DialogForm from '../components/dialog-form.vue'
+import { Tag, PeriodMapping } from '../config.js'
+import DialogForm from '../components/DialogForm.vue'
 import { BigNumber } from 'bignumber.js'
 import { mapState, mapMutations } from 'vuex'
 import dayjs from 'dayjs'
+import { copys, claimTime, ellipsis } from '@/utils'
 export default {
   components: {
     TitleCard,
@@ -125,17 +126,24 @@ export default {
       top: 'MORE',
       bom: 'MORE',
       Dialog: false,
-      metaMaskAddress: '',
       msg: '',
       btnbid: false,
       bidData: {},
       btn: '',
       claimData: {},
       loading: null,
+      ClaimTime: null,
+      metaMaskAddres: '',
     }
   },
   computed: {
-    ...mapState(['BalanceOf', 'Smile', 'SuBalanceOf', 'Pending']),
+    ...mapState([
+      'BalanceOf',
+      'Smile',
+      'SuBalanceOf',
+      'Pending',
+      'MetaMaskAddress',
+    ]),
     tableTop() {
       if (this.activeBid.length > 3) {
         if (this.top === 'MORE') {
@@ -161,21 +169,18 @@ export default {
   },
   watch: {
     BalanceOf(cur, old) {
-      if (cur) {
-        this.getTable()
-      }
-    },
-    SuBalanceOf(cur, old) {
-      if (cur) {
+      if (cur[this.Smile] !== old[this.Smile]) {
         this.getTable()
       }
     },
   },
   async mounted() {
+    this.ClaimTime = claimTime
+    this.Ellipsis = ellipsis
     const eth_accounts = await ethereum.request({
       method: 'eth_accounts',
     })
-    this.metaMaskAddress =
+    this.metaMaskAddres =
       eth_accounts && eth_accounts.length > 0 ? eth_accounts[0] : ''
     this.getTable()
   },
@@ -191,48 +196,8 @@ export default {
         ? '#5784C1'
         : '#2681FF'
     },
-    claimTime(time) {
-      if (time > 0) {
-        const t = parseInt(time / 60 / 60 / 24)
-        const h = parseInt(time / 60 / 60 - t * 24)
-        const m = parseInt(time / 60 - h * 60 - t * 24 * 60)
-        // const s = parseInt(time - h * 60 * 60 - m * 60 - t * 24 * 60)
-        return t > 0
-          ? t + 'd:' + h + 'h:' + m + 'min ' + 'left'
-          : h > 0
-          ? h + 'h:' + m + 'min ' + 'left'
-          : m + 'min ' + 'left'
-      }
-    },
     dateFormat(val) {
       return new Date(val * 1000).toLocaleString()
-      // return dayjs(val * 1000).format('YYYY-MM-DD  HH:mm:ss')
-    },
-    getName(period) {
-      if (this.Smile === 'yyCRV') {
-        switch (period) {
-          case '1 week':
-            return 'oneweek'
-          case '2 weeks':
-            return 'towweek'
-          case '1 month':
-            return 'onemonth'
-          default:
-            return ''
-        }
-      }
-      if (this.Smile === 'xSushi') {
-        switch (period) {
-          case '1 week':
-            return 'sushione'
-          case '2 weeks':
-            return 'sushitwo'
-          case '1 month':
-            return 'sushimonth'
-          default:
-            return ''
-        }
-      }
     },
     async claim(item) {
       this.claimData = item
@@ -241,11 +206,11 @@ export default {
       this.Dialog = true
     },
     async setClaim() {
-      const num = await getMyBF(this.metaMaskAddress, this.claimData.lp_addr)
-      const name = this.getName(this.claimData.period)
+      const num = await getMyBF(this.metaMaskAddres, this.claimData.lp_addr)
+      const name = PeriodMapping[this.Smile][this.claimData.period]
       let params = getClaim(
         num,
-        this.metaMaskAddress,
+        this.metaMaskAddres,
         name,
         this.claimData.lp_addr
       )
@@ -255,7 +220,7 @@ export default {
           method: 'eth_sendTransaction',
           params: params,
           loadingDefaults: true,
-          from: this.metaMaskAddress, // Provide the user's account to use.
+          from: this.metaMaskAddres, // Provide the user's account to use.
         },
         (err, result) => {
           if (result.result) {
@@ -277,23 +242,22 @@ export default {
       )
     },
     openEch(id) {
-      if (Tag) {
-        window.open(`https://ropsten.etherscan.io/tx/${id}`, '_blank')
-      } else {
-        window.open(`https://etherscan.io/tx/${id}`, '_blank')
-      }
-
+      let Win = window.open()
+      Win.opener = null
+      Win.location = Tag
+        ? `https://ropsten.etherscan.io/tx/${id}`
+        : `https://etherscan.io/tx/${id}`
     },
     setShou() {
       if (this.btnbid) {
-        const name = this.getName(this.bidData.period)
+        const name = PeriodMapping[this.Smile][this.bidData.period]
         this.Dialog = false
         const number = new BigNumber(this.bidData.Size)
           .multipliedBy(1e18)
           .toString(10)
         let params = getHGateKeeper(
           number,
-          this.metaMaskAddress,
+          this.metaMaskAddres,
           name,
           this.bidData.ratio_for_bid
         )
@@ -302,7 +266,7 @@ export default {
             method: 'eth_sendTransaction',
             params: params,
             loadingDefaults: true,
-            from: this.metaMaskAddress, // Provide the user's account to use.
+            from: this.metaMaskAddres, // Provide the user's account to use.
           },
           (err, result) => {
             if (result.result) {
@@ -337,20 +301,7 @@ export default {
       localStorage.setItem('Pending', JSON.stringify(list))
     },
     copy(item) {
-      const spanText = item
-      const oInput = document.createElement('input')
-      oInput.value = spanText
-      document.body.appendChild(oInput)
-      oInput.select() // 选择对象
-      document.execCommand('Copy') // 执行浏览器复制命令
-      oInput.className = 'oInput'
-      oInput.style.display = 'none'
-      document.body.removeChild(oInput)
-      this.$message({
-        message: 'Copy success!',
-        type: 'success',
-        offset: 100,
-      })
+      copys(this, item)
     },
     closeMain(val) {
       this.Dialog = false
@@ -358,7 +309,7 @@ export default {
     setRebid(item) {
       this.bidData = item
       this.btn = 'REBID'
-      const bf = this.Smile === 'yyCRV' ? this.BalanceOf : this.SuBalanceOf
+      const bf = this.BalanceOf[this.Smile]
       if (Number(bf) > Number(item.Size)) {
         this.msg = `You selected ${item.Size} size and ${item.IR}(IR) over ${item.period}`
         this.btnbid = true
@@ -368,14 +319,8 @@ export default {
       }
       this.Dialog = true
     },
-    ellipsis(value) {
-      if (!value) return ''
-      if (value.length > 10) {
-        return value.slice(0, 5) + '...' + value.slice(62, 66)
-      }
-      return value
-    },
     getTable() {
+      console.log('get')
       this.loading = this.$loading({
         lock: true,
         text: 'Loading',
@@ -385,8 +330,8 @@ export default {
       this.activeBid = []
       this.historyBid = []
       Promise.all([
-        getActiveBid(this.metaMaskAddress, this.Smile),
-        getHistoryBid(this.metaMaskAddress, this.Smile),
+        getActiveBid(this.metaMaskAddres, this.Smile),
+        getHistoryBid(this.metaMaskAddres, this.Smile),
       ]).then(([activeBid, historyBid]) => {
         this.activeBid = activeBid.data.error_code ? [] : activeBid.data
         this.historyBid = historyBid.data.error_code ? [] : historyBid.data

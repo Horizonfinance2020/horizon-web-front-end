@@ -1,21 +1,53 @@
-// 测试环境
+//配置文件
 let API_URL = ''
+
 let NetWork = ''
+
 let IERC20 = {}
+
 let HPeriodToken = {}
+
 let HGateKeeper = {}
+
 let Tag = null
+
+const NameMapping = {
+  yyCRV: ['towweek', 'onemonth'],
+  xSushi: ['sushitwo', 'sushimonth'],
+}
+
+const DayMapping = [14, 30]
+
+const PeriodMapping = {
+  yyCRV: {
+    '1 week': 'oneweek',
+    '2 weeks': 'towweek',
+    '1 month': 'onemonth',
+  },
+  xSushi: {
+    '1 week': 'sushione',
+    '2 weeks': 'sushitwo',
+    '1 month': 'sushimonth',
+  },
+}
+
+const BalanceOfObj = {
+  yyCRV: 0,
+  xSushi: 0,
+}
+
+const PeriodName = ['2 weeks', '1 month']
+
 switch (process.env.NODE_ENV) {
+  // 测试环境
   case 'test':
-    Tag = '3.24'
-    // 测试环境
+    Tag = '3.29 优化'
     API_URL = 'https://test-api.horizon.finance'
     NetWork = 'ropsten'
     IERC20 = {
       yyCRV: '0x13A8A0401eEDD531F079A38Cfe7C70CC899ACB85',
       xSushi: '0x13A8A0401eEDD531F079A38Cfe7C70CC899ACB85',
     }
-
     HPeriodToken = {
       oneweek: '0x68d9AFda47805Ce682F31E4989f431c433F958ba',
       towweek: '0x61912C720E594F4433aB689289f4eaf0d77567A4',
@@ -24,7 +56,6 @@ switch (process.env.NODE_ENV) {
       sushitwo: '0x68d9AFda47805Ce682F31E4989f431c433F958ba',
       sushimonth: '0x68d9AFda47805Ce682F31E4989f431c433F958ba',
     }
-
     HGateKeeper = {
       oneweek: '0x3f7bf62Dc248087a263CC88FbdEe6E474E1eA497',
       towweek: '0x5A194eDd3D4Fe0154f30EC3c4E8F3c88E70387C7',
@@ -33,10 +64,10 @@ switch (process.env.NODE_ENV) {
       sushitwo: '0x3f7bf62Dc248087a263CC88FbdEe6E474E1eA497',
       sushimonth: '0x3f7bf62Dc248087a263CC88FbdEe6E474E1eA497',
     }
-
     break
+
+  // 生产环境
   case 'production':
-    // 生产环境
     API_URL = 'https://api.horizon.finance'
     NetWork = 'mainnet'
     IERC20 = {
@@ -62,4 +93,16 @@ switch (process.env.NODE_ENV) {
     break
 }
 
-export { NetWork, API_URL, IERC20, HPeriodToken, HGateKeeper, Tag }
+export {
+  NetWork,
+  API_URL,
+  IERC20,
+  HPeriodToken,
+  HGateKeeper,
+  Tag,
+  NameMapping,
+  PeriodName,
+  BalanceOfObj,
+  DayMapping,
+  PeriodMapping,
+}

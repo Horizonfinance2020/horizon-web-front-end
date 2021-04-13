@@ -20,7 +20,7 @@
 
 <script>
 import MetaMask from './MetaMask.vue'
-import DialogForm from '../components/dialog-form.vue'
+import DialogForm from '../components/DialogForm.vue'
 import { mapMutations, mapState } from 'vuex'
 import { NetWork } from '../config.js'
 export default {

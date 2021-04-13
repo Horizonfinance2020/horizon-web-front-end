@@ -13,28 +13,19 @@
       </div>
       <div class="main-r">
         <div class="table">
-          <div class="table-all" @click="confirm(2)" :style="{background:num===2?'#5784C1':''}">
-            <div class="table-left">2 weeks</div>
-            <div class="table-center">{{timeFormat(two.time)}}</div>
+          <div
+            class="table-all"
+            v-for="(item , idx) in list "
+            :key="idx"
+            @click="confirm(idx+1)"
+            :style="{background:num===idx+1?'#5784C1':''}"
+          >
+            <div class="table-left">{{ periodName[idx]}}</div>
+            <div class="table-center">{{timeFormat(item.time)}}</div>
             <div class="table-right">
               <el-progress
                 type="circle"
-                :percentage="two.onepercentage"
-                :stroke-width="20"
-                :width="80"
-                :color="Theme==='theme1'?'#cecece':'#505050'"
-                :show-text="false"
-                stroke-linecap="butt"
-              ></el-progress>
-            </div>
-          </div>
-          <div class="table-all" @click="confirm(3)" :style="{background:num===3?'#5784C1':''}">
-            <div class="table-left">1 month</div>
-            <div class="table-center">{{timeFormat(thr.time)}}</div>
-            <div class="table-right">
-              <el-progress
-                type="circle"
-                :percentage="thr.onepercentage"
+                :percentage="item.onepercentage"
                 :stroke-width="20"
                 :width="80"
                 :color="Theme==='theme1'?'#cecece':'#505050'"
@@ -54,6 +45,7 @@ import TitleCard from '@/components/TitleCard.vue'
 import { mapState } from 'vuex'
 import { getBlockNum, getPeriod, getPeriodInfos, getBlock } from '@/common/web3'
 import { milliseconds } from '@/utils'
+import { NameMapping, PeriodName } from '../config.js'
 export default {
   components: {
     TitleCard,
@@ -66,40 +58,34 @@ export default {
       num: 0,
       tag: 'one',
       steps: '35%',
-      one: {
-        time: 0,
-        onepercentage: 0,
-      },
-      two: {
-        time: 0,
-        onepercentage: 0,
-      },
-      thr: {
-        time: 0,
-        onepercentage: 0,
-      },
+      dataList: [],
+      list: [
+        {
+          time: 0,
+          onepercentage: 0,
+        },
+        {
+          time: 0,
+          onepercentage: 0,
+        },
+      ],
+      periodName: [],
     }
   },
   created() {
-    this.one = {
-      time: 0,
-      onepercentage: 0,
-    }
-    this.two = {
-      time: 0,
-      onepercentage: 0,
-    }
-    this.thr = {
-      time: 0,
-      onepercentage: 0,
-    }
-    if (this.Smile === 'yyCRV') {
-      this.getDataTwo('towweek')
-      this.getDataThr('onemonth')
-    } else {
-      this.getDataTwo('sushitwo')
-      this.getDataThr('sushimonth')
-    }
+    this.periodName = PeriodName
+    this.list = this.list = [
+      {
+        time: 0,
+        onepercentage: 0,
+      },
+      {
+        time: 0,
+        onepercentage: 0,
+      },
+    ]
+    const NameMappingList = NameMapping[this.Smile]
+    this.getTimeData(NameMappingList)
   },
   methods: {
     timeFormat(val) {
@@ -111,14 +97,6 @@ export default {
       const periodInfo = await getPeriodInfos(period, name)
       const block = await getBlock()
       const num = Number(block) - Number(periodInfo.s)
-      console.log(
-        blockNum + 'blockNum',
-        period + 'period',
-        periodInfo,
-        'periodInfo',
-        block + 'block',
-        num + 'num'
-      )
       if (num > Number(blockNum)) {
         return {
           time: 0,
@@ -131,20 +109,11 @@ export default {
         }
       }
     },
-
-    async getDataOne(name) {
-      const data = await this.getData(name)
-      this.one = { ...data }
-    },
-
-    async getDataTwo(name) {
-      const data = await this.getData(name)
-      this.two = { ...data }
-    },
-
-    async getDataThr(name) {
-      const data = await this.getData(name)
-      this.thr = { ...data }
+    getTimeData(NameMappingList) {
+      NameMappingList.forEach(async (item, idx) => {
+        const data = await this.getData(item)
+        this.$set(this.list, idx, { ...data })
+      })
     },
     confirm(val) {
       this.num = val
@@ -157,18 +126,7 @@ export default {
     },
   },
   destroyed() {
-    this.one = {
-      time: 0,
-      onepercentage: 0,
-    }
-    this.two = {
-      time: 0,
-      onepercentage: 0,
-    }
-    this.thr = {
-      time: 0,
-      onepercentage: 0,
-    }
+    this.list = []
   },
 }
 </script>

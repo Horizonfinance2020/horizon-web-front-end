@@ -2,7 +2,6 @@
 
 ## Introduction
 
-
 HORIZON is a product of interest rate protocols.Horizon Finance allows users to deposit their funds and compete for preferential payment by capping their yield, thereby outperforming or underperforming the benchmark interest rate.This is the front-end of HORIZON.
 
 ## Execution

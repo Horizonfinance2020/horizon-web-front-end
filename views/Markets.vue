@@ -1,27 +1,21 @@
 <template>
   <div class="box">
     <div class="body">
-      <div class="one-card" @click="gooptions('yyCRV')">
+      <div
+        v-for="(val,key,idx) in BalanceOf"
+        :key="idx"
+        @click="gooptions(key)"
+        :class="`${key}-card`"
+      >
         <div class="top">
-          <span>yyCRV in your wallet</span>
+          <span>{{key}} in your wallet</span>
           <br />
-          <span>{{BalanceOf}}</span>
+          <span>{{val}}</span>
         </div>
         <div class="center">
-          <svg-icon iconClass="yyCRV"></svg-icon>
+          <svg-icon :iconClass="key" style="font-size:100px"></svg-icon>
         </div>
-        <div class="bottom">yyCRV market ➜</div>
-      </div>
-      <div class="two-card" @click="gooptions('xSushi')">
-        <div class="top">
-          <span>xSushi in your wallet</span>
-          <br />
-          <span>{{SuBalanceOf}}</span>
-        </div>
-        <div class="center">
-          <svg-icon iconClass="xSushi" style="font-size:104px"></svg-icon>
-        </div>
-        <div class="bottom">xSushi market ➜</div>
+        <div class="bottom">{{key}} market ➜</div>
       </div>
       <div class="last-card" @click="addMarkte">
         <div class="top"></div>
@@ -47,9 +41,7 @@ export default {
     ...mapState(['Theme', 'BalanceOf', 'SuBalanceOf']),
   },
   data() {
-    return {
-      balanceOf: 0,
-    }
+    return {}
   },
   created() {
     this.setSmile('')
@@ -84,8 +76,8 @@ export default {
   .body {
     height: 100%;
     display: flex;
-    .one-card,
-    .two-card,
+    .yyCRV-card,
+    .xSushi-card,
     .last-card {
       width: 20%;
       // min-width: 400px;
@@ -94,8 +86,8 @@ export default {
       border-radius: 10px;
       cursor: pointer;
     }
-    .one-card,
-    .two-card {
+    .yyCRV-card,
+    .xSushi-card {
       background-color: #5784c1 !important;
       border: 1px solid #5784c1;
       display: flex;
@@ -116,7 +108,7 @@ export default {
         font-size: 120px;
       }
     }
-    .two-card {
+    .xSushi-card {
       background-color: #be5b5f !important;
       border: 1px solid #be5b5f;
     }
@@ -152,8 +144,8 @@ export default {
 .logo {
   width: 95px;
 }
-.one-card:hover,
-.two-card:hover,
+.yyCRV-card:hover,
+.xSushi-card:hover,
 .last-card:hover {
   -webkit-box-shadow: 4px 4px 6px #969696;
   -moz-box-shadow: 4px 4px 6px #969696;
