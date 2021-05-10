@@ -4,7 +4,9 @@
     <div class="body-mian">
       <div class="main-l" v-if="btnName==='CONFIRM'">
         <p v-if="allow===0">You need to agree to allow linking your wallet.</p>
-        <p v-else>Select the size and IR you want to bid over a {{periodName[$route.query.code-1]}} period.</p>
+        <p
+          v-else
+        >Select the size and IR you want to bid over a {{name[$route.query.code-1]}} period.</p>
         <button class="bu_btn" @click="setApproves" :disabled="approves" v-if="allow===0">APPROVE</button>
         <button v-else class="bu_btn" @click="setOrder">CONFIRM</button>
         <span @click="goPeriod">CANCEL AND CHOOSE OTHER PERIOD</span>
@@ -12,9 +14,11 @@
       <div class="main-l" v-else>
         <p>
           You have placed a bid at
-          <span style="border-bottom:none;;font-family: 'Bold';">{{list[calssNum].ratio}}</span> in
+          <span
+            style="border-bottom:none;;font-family: 'Bold';"
+          >{{list[calssNum].ratio}}</span> in
           <span style="border-bottom:none;font-family: 'Bold';">{{money}} {{Smile}}</span>
-          for the {{periodName[$route.query.code-1]}} market.
+          for the {{name[$route.query.code-1]}} market.
         </p>
         <button class="bu_btn" @click="goPeriod">BID AGAIN</button>
         <span @click="goHistory">SEE ON THE HISTORY</span>
@@ -23,8 +27,20 @@
         <div class="main-c-top">
           <span class="title">SIZE</span>
           <br />
-          <el-input v-model="money" @input="setMoney" onkeyup="value=value.replace(/[^\d^\.]/g,'')"></el-input>
-          <el-slider v-model="slider" :show-tooltip="false" :min="0" :max="maxMoney" @input="setSlider" style="margin-left: 10px;" />
+          <el-input-number
+            v-model="money"
+            :min="0"
+            :max="maxMoney"
+            :controls="false"
+            @blur="setMoney"
+          ></el-input-number>
+          <el-slider
+            v-model="money"
+            :show-tooltip="false"
+            :min="0"
+            :max="maxSize"
+            style="margin-left: 10px;"
+          />
           <span class="yusd">
             <span class="sizemany">{{maxMoney}}</span>
             {{Smile}} AVAILABLE
@@ -34,30 +50,68 @@
         <div class="main-c-bottom">
           <span>IR -INTEREST RATES</span>
           <br />
-          <button class="bu_btn" v-if="list.length!==0" @click="setFloating" :style="{'background-color':flo===true?'#5784C1':''}">FLOATING</button>
+          <button
+            class="bu_btn"
+            v-if="list.length!==0"
+            @click="setFloating"
+            :style="{'background-color':flo===true?'#5784C1':''}"
+          >FLOATING</button>
           <br />
-          <button class="bu_num" v-for="(item , idx) in list" v-show="item.ratio!=='FLOATING'" :key="idx" :style="{'background-color':calssNum===idx?'#5784C1':''}" @click="setNum(idx)">{{item.ratio}}</button>
+          <button
+            class="bu_num"
+            v-for="(item , idx) in list"
+            v-show="item.ratio!=='FLOATING'"
+            :key="idx"
+            :style="{'background-color':calssNum===idx?'#5784C1':''}"
+            @click="setNum(idx)"
+          >{{item.ratio}}</button>
         </div>
       </div>
       <div class="main-r" :style="{width:btnName==='CONFIRM'?'30%':'65%'}">
         <div class="r-title">
-          <span :style="{color:tags==='upcoming'?'#5784c1':cycle==='upcoming'?'':'#707070'}" @click="setCycle('upcoming')" @mousemove="setColor('upcoming')" @mouseleave="remColor('upcoming')">UPCOMING QUANTA</span>
-          <span class="title-r" :style="{color:tags==='previous'?'#5784c1':cycle==='previous'?'':'#707070'}" @click="setCycle('previous')" @mousemove="setColor('previous')" @mouseleave="remColor('previous')">SEE PREVIOUS QUANTA</span>
+          <span
+            :style="{color:tags==='upcoming'?'#5784c1':cycle==='upcoming'?'':'#707070'}"
+            @click="setCycle('upcoming')"
+            @mousemove="setColor('upcoming')"
+            @mouseleave="remColor('upcoming')"
+          >UPCOMING QUANTA</span>
+          <span
+            class="title-r"
+            :style="{color:tags==='previous'?'#5784c1':cycle==='previous'?'':'#707070'}"
+            @click="setCycle('previous')"
+            @mousemove="setColor('previous')"
+            @mouseleave="remColor('previous')"
+          >SEE PREVIOUS QUANTA</span>
         </div>
         <div class="main-r-box" v-if="cycle==='upcoming'">
           <div v-for="(item , idx) in listData" :key="idx" style="width:100%;display: flex;">
             <div class="r-box-item">
               <div class="item-num">{{item.ratio}}</div>
               <div class="item-body">
-                <div class="item-idx" v-if="item.ratio!=='FLOATING'" :style="{width:item.bids+ '%',display:item.bids===0?'none':''}"></div>
-                <div class="item-box" v-if="item.ratio!=='FLOATING'" :style="{width:item.for+'%',display:item.for<=0?'none':''}"></div>
-                <div class="item-idx-lest" v-if="item.ratio==='FLOATING'" :style="{width:item.bids+ '%' ,display:item.bids===0?'none':''}"></div>
-                <div class="item-idxlest" v-if="item.ratio==='FLOATING'" :style="{width:item.for+'%',display:item.for<=0?'none':''}"></div>
+                <div
+                  class="item-idx"
+                  v-if="item.ratio!=='FLOATING'"
+                  :style="{width:item.bids+ '%'}"
+                ></div>
+                <div class="item-box" v-if="item.ratio!=='FLOATING'" :style="{width:item.for+'%'}"></div>
+                <div
+                  class="item-idx-lest"
+                  v-if="item.ratio==='FLOATING'"
+                  :style="{width:item.bids+ '%' ,display:item.bids===0?'none':''}"
+                ></div>
+                <div
+                  class="item-idxlest"
+                  v-if="item.ratio==='FLOATING'"
+                  :style="{width:item.for+'%',display:item.for<=0?'none':''}"
+                ></div>
               </div>
               <div>{{fixedFloat(item.value)}}</div>
             </div>
             <div class="right_text">
-              <div :style="{width:divWidth(listData[listData.length-1].value_sum,item.value_sum)}" style="margin-left: auto;">
+              <div
+                :style="{width:divWidth(listData[listData.length-1].value_sum,item.value_sum)}"
+                style="margin-left: auto;"
+              >
                 <span style="float: right;">{{fixedFloat(item.value_sum)}}</span>
               </div>
             </div>
@@ -68,15 +122,30 @@
             <div class="r-box-item">
               <div class="item-num">{{item.ratio}}</div>
               <div class="item-body">
-                <div class="item-idx" v-if="item.ratio!=='FLOATING'" :style="{width:item.bids+ '%'}"></div>
+                <div
+                  class="item-idx"
+                  v-if="item.ratio!=='FLOATING'"
+                  :style="{width:item.bids+ '%'}"
+                ></div>
                 <div class="item-box" v-if="item.ratio!=='FLOATING'" :style="{width:item.for+'%'}"></div>
-                <div class="item-idx-lest" v-if="item.ratio==='FLOATING'" :style="{width:item.bids+ '%' ,display:item.bids===0?'none':''}"></div>
-                <div class="item-idxlest" v-if="item.ratio==='FLOATING'" :style="{width:item.for+'%',display:item.for<=0?'none':''}"></div>
+                <div
+                  class="item-idx-lest"
+                  v-if="item.ratio==='FLOATING'"
+                  :style="{width:item.bids+ '%' ,display:item.bids===0?'none':''}"
+                ></div>
+                <div
+                  class="item-idxlest"
+                  v-if="item.ratio==='FLOATING'"
+                  :style="{width:item.for+'%',display:item.for<=0?'none':''}"
+                ></div>
               </div>
               <div>{{fixedFloat(item.value)}}</div>
             </div>
             <div class="right_text">
-              <div :style="{width:divWidth(listDataTo[listDataTo.length-1].value_sum,item.value_sum)}" style="margin-left: auto;">
+              <div
+                :style="{width:divWidth(listDataTo[listDataTo.length-1].value_sum,item.value_sum)}"
+                style="margin-left: auto;"
+              >
                 <span style="float: right;">{{fixedFloat(item.value_sum)}}</span>
               </div>
             </div>
@@ -139,17 +208,15 @@
 </template>
 
 <script>
-import TitleCard from '@/components/TitleCard.vue';
+import TitleCard from '@/components/TitleCard.vue'
 import {
   getAllowance,
   setApprove,
   getDashboard,
   getHGateKeeper,
-} from '@/common/web3';
-import { mapState, mapMutations } from 'vuex';
-import { BigNumber } from 'bignumber.js';
-import { NameMapping, PeriodName, DayMapping } from '../config.js';
-
+} from '@/common/web3'
+import { mapState, mapMutations } from 'vuex'
+import { BigNumber } from 'bignumber.js'
 export default {
   components: {
     TitleCard,
@@ -158,13 +225,15 @@ export default {
     return {
       tag: 'one',
       tags: null,
-      money: '0',
-      slider: 0,
+      money: 0,
+      isMoney: false,
       cycle: 'upcoming',
       calssNum: null,
       flo: false,
       btnName: 'CONFIRM',
+      moneyNum: 0,
       list: [],
+      listTo: [],
       previous: {
         SystemIncome: 0,
         SystemAPY: 0,
@@ -181,154 +250,180 @@ export default {
         Dashboard: [],
       },
       allow: 0,
-      periodName: [],
-      metaMaskAddres: '',
-    };
+      metaMaskAddress: '',
+      name: ['1 week', '2 weeks', '1 month'],
+      codes: ['oneweek', 'towweek', 'onemonth'],
+      scodes: ['sushione', 'sushitwo', 'sushimonth'],
+      day: [7, 14, 30],
+    }
   },
   computed: {
-    ...mapState([
-      'Smile',
-      'SuBalanceOf',
-      'BalanceOf',
-      'Pending',
-      'MetaMaskAddress',
-    ]),
+    ...mapState(['Smile', 'SuBalanceOf', 'BalanceOf', 'Pending']),
     dataType() {
-      const Data = this.cycle === 'upcoming' ? this.upcoming : this.previous;
-      return Data;
+      let Data = this.cycle === 'upcoming' ? this.upcoming : this.previous
+      return Data
     },
     maxValue() {
       return Number(this.dataType.MaxValue) === 0
         ? 100
-        : Number(this.dataType.MaxValue);
+        : Number(this.dataType.MaxValue)
     },
     listData() {
-      const data = JSON.parse(JSON.stringify(this.list)).map((item) => ({
-        ...item,
-      }));
+      const data = JSON.parse(JSON.stringify(this.list)).map((item) => {
+        return {
+          ...item,
+        }
+      })
       if (this.calssNum !== null) {
         // const max = Number(data[this.calssNum].value) + this.money
         return data.map((item) => {
           item.for = Math.ceil(
-            ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100,
-          );
-          item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100);
+            ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100
+          )
+          item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100)
           data[this.calssNum].bids = Math.ceil(
-            (this.money / this.maxValue) * 100,
-          );
-          return { ...item };
-        });
+            (this.money / this.maxValue) * 100
+          )
+          return { ...item }
+        })
+        // if (max > this.maxValue) {
+        //   return data.map((item) => {
+        //     item.for = Math.ceil(
+        //       ((Number(item.value) - Number(item.bids)) / this.max) * 100
+        //     )
+        //     item.bids = Math.ceil((Number(item.bids) / max) * 100)
+        //     data[this.calssNum].bids = Math.ceil((this.money / max) * 100)
+        //     return { ...item }
+        //   })
+        // } else {
+        //   return data.map((item) => {
+        //     item.for = Math.ceil(
+        //       ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100
+        //     )
+        //     item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100)
+        //     data[this.calssNum].bids = Math.ceil(
+        //       (this.money / this.maxValue) * 100
+        //     )
+        //     return { ...item }
+        //   })
+        // }
+      } else {
+        return data.map((item) => {
+          item.for = Math.ceil(
+            ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100
+          )
+          item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100)
+          return { ...item }
+        })
       }
-      return data.map((item) => {
-        item.for = Math.ceil(
-          ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100,
-        );
-        item.bids = Math.ceil((Number(item.bids) / this.maxValue) * 100);
-        return { ...item };
-      });
     },
     listDataTo() {
       const data = JSON.parse(JSON.stringify(this.dataType.Dashboard)).map(
-        (item) => ({
-          ...item,
-        }),
-      );
+        (item) => {
+          return {
+            ...item,
+          }
+        }
+      )
       return data.map((item) => {
         item.for = Math.ceil(
-          ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100,
-        );
+          ((Number(item.value) - Number(item.bids)) / this.maxValue) * 100
+        )
         item.bids = item.bids
           ? Math.ceil((Number(item.bids) / this.maxValue) * 100)
-          : 0;
-        return { ...item };
-      });
+          : 0
+        return { ...item }
+      })
     },
     steps() {
-      return this.btnName === 'BID AGAIN' ? '100%' : '67%';
+      return this.btnName === 'BID AGAIN' ? '100%' : '67%'
     },
     maxMoney() {
-      return Number(this.BalanceOf[this.Smile]);
+      return this.Smile === 'yyCRV'
+        ? Number(this.BalanceOf)
+        : Number(this.SuBalanceOf)
+    },
+    maxSize() {
+      return this.Smile === 'yyCRV'
+        ? Math.ceil(Number(this.BalanceOf))
+        : Math.ceil(Number(this.SuBalanceOf))
     },
   },
   async mounted() {
-    this.periodName = PeriodName;
     const eth_accounts = await ethereum.request({
       method: 'eth_accounts',
-    });
-    this.metaMaskAddres = eth_accounts && eth_accounts.length > 0 ? eth_accounts[0] : '';
-    this.getAllowances();
-    this.getData();
+    })
+    this.metaMaskAddress =
+      eth_accounts && eth_accounts.length > 0 ? eth_accounts[0] : ''
+    this.getAllowances()
+    this.getData()
   },
   watch: {
     Pending(cur, old) {
-      const arr = old.filter((item) => item.name === 'approves');
+      const arr = old.filter((item) => item.name === 'approves')
       if (arr.length > 0) {
-        this.getAllowances();
+        this.getAllowances()
       }
     },
   },
   methods: {
     ...mapMutations(['setPending']),
-    setSlider(val) {
-      this.money = isNaN(val) ? 0 : Number(val);
-    },
+
     setColor(item) {
       if (item !== this.tags) {
-        this.tags = item;
+        this.tags = item
       }
     },
     remColor(item) {
       if (item === this.tags) {
-        this.tags = null;
+        this.tags = null
       }
     },
     divWidth(max, num) {
-      return parseInt(max) === 0 ? '0%' : `${(num / max).toFixed(2) * 100}%`;
+      return parseInt(max) === 0 ? '0%' : (num / max).toFixed(2) * 100 + '%'
     },
     fixedFloat(num) {
-      return parseFloat(num.toString().match(/^\d+(?:\.\d{0,2})?/)[0]);
+      return parseFloat(num.toString().match(/^\d+(?:\.\d{0,2})?/)[0])
     },
-    setMoney(val) {
-      const strArr = val.toString().split('.');
-      if (strArr.length > 2) {
-        this.money = `${strArr[0]}.${strArr[1]}`;
-      } else {
-        this.slider = !val || typeof val === 'undefined' || isNaN(Number(val))
-          ? 0
-          : Number(val);
+    setMoney() {
+      if (typeof this.money === 'undefined') {
+        this.money = 0
       }
     },
     getData() {
       getDashboard(
-        this.metaMaskAddres,
-        DayMapping[this.$route.query.code - 1],
-        this.Smile,
+        this.metaMaskAddress,
+        this.day[this.$route.query.code - 1],
+        this.Smile
       ).then((res) => {
         if (res.status === 200) {
-          this.previous = res.data.Previous ? res.data.Previous : this.previous;
-          this.upcoming = res.data.Upcoming ? res.data.Upcoming : this.upcoming;
-          this.list = this.upcoming.Dashboard ? this.upcoming.Dashboard : [];
+          this.previous = res.data.Previous ? res.data.Previous : this.previous
+          this.upcoming = res.data.Upcoming ? res.data.Upcoming : this.upcoming
+          this.list = this.upcoming.Dashboard ? this.upcoming.Dashboard : []
         }
-      });
+      })
     },
     setApproves() {
       try {
-        this.approves = true;
-        const name = NameMapping[this.Smile][this.$route.query.code - 1];
-        const params = setApprove(
+        this.approves = true
+        const name =
+          this.Smile === 'yyCRV'
+            ? this.codes[this.$route.query.code - 1]
+            : this.scodes[this.$route.query.code - 1]
+        let params = setApprove(
           new BigNumber(1e28).toString(10),
           name,
-          this.metaMaskAddres,
-          this.Smile,
-        );
+          this.metaMaskAddress,
+          this.Smile
+        )
         ethereum.sendAsync(
           {
             method: 'eth_sendTransaction',
-            params,
+            params: params,
             loadingDefaults: true,
-            from: this.metaMaskAddres, // Provide the user's account to use.
+            from: this.metaMaskAddress, // Provide the user's account to use.
           },
-          // TODO 合约出错 ，停止
+          //TODO 合约出错 ，停止
           (err, result) => {
             if (result.result) {
               const obj = {
@@ -336,50 +431,53 @@ export default {
                 name: 'approves',
                 id: result.result,
                 msg: '授权',
-              };
-              this.setPendings(obj);
-              this.approves = false;
+              }
+              this.setPendings(obj)
+              this.approves = false
             } else {
-              this.approves = false;
+              this.approves = false
               // this.$message.error('Transaction failure')
               this.$notify.error({
                 message: 'Transaction failure.',
                 title: 'Error',
                 offset: 100,
-              });
+              })
             }
-          },
-        );
+          }
+        )
       } catch (error) {
         this.$notify.error({
           message: error,
           title: 'Error',
           offset: 100,
-        });
+        })
       }
     },
     async getAllowances() {
-      const name = NameMapping[this.Smile][this.$route.query.code - 1];
+      const name =
+        this.Smile === 'yyCRV'
+          ? this.codes[this.$route.query.code - 1]
+          : this.scodes[this.$route.query.code - 1]
       this.allow = Number(
-        await getAllowance(this.metaMaskAddres, name, this.Smile),
-      );
+        await getAllowance(this.metaMaskAddress, name, this.Smile)
+      )
     },
     setMaxMoney() {
-      this.slider = this.maxMoney;
+      this.money = this.maxMoney
     },
     setCycle(val) {
-      this.cycle = val;
+      this.cycle = val
     },
     setNum(val) {
       if (this.cycle === 'upcoming') {
-        this.flo = false;
-        this.calssNum = val;
+        this.flo = false
+        this.calssNum = val
       }
     },
     setFloating() {
       if (this.cycle === 'upcoming' && this.list) {
-        this.calssNum = this.list.length - 1;
-        this.flo = true;
+        this.calssNum = this.list.length - 1
+        this.flo = true
       }
     },
     setOrder() {
@@ -389,8 +487,8 @@ export default {
           message: 'Please choose size first.',
           type: 'warning',
           offset: 100,
-        });
-        return;
+        })
+        return
       }
       if (this.calssNum === null) {
         this.$message({
@@ -398,25 +496,28 @@ export default {
           message: 'Please choose interest rates.',
           type: 'warning',
           offset: 100,
-        });
-        return;
+        })
+        return
       }
-      const number = new BigNumber(this.money).multipliedBy(1e18).toFixed(0);
-      const name = NameMapping[this.Smile][this.$route.query.code - 1];
-      const params = getHGateKeeper(
+      const number = new BigNumber(this.money).multipliedBy(1e18).toString(10)
+      const name =
+        this.Smile === 'yyCRV'
+          ? this.codes[this.$route.query.code - 1]
+          : this.scodes[this.$route.query.code - 1]
+      let params = getHGateKeeper(
         number,
-        this.metaMaskAddres,
+        this.metaMaskAddress,
         name,
-        this.list[this.calssNum].ratio_for_bid,
-      );
+        this.list[this.calssNum].ratio_for_bid
+      )
       ethereum.sendAsync(
         {
           method: 'eth_sendTransaction',
-          params,
+          params: params,
           loadingDefaults: true,
-          from: this.metaMaskAddres, // Provide the user's account to use.
+          from: this.metaMaskAddress, // Provide the user's account to use.
         },
-        // TODO 合约出错 ，停止
+        //TODO 合约出错 ，停止
         (err, result) => {
           if (result.result) {
             const obj = {
@@ -424,41 +525,41 @@ export default {
               name: this.Smile,
               id: result.result,
               msg: 'Bid',
-            };
-            this.setPendings(obj);
-            this.btnName = 'BID AGAIN';
+            }
+            this.setPendings(obj)
+            this.btnName = 'BID AGAIN'
           } else {
             this.$notify.error({
               message: error,
               title: 'Transaction failure',
               offset: 100,
-            });
+            })
           }
-        },
-      );
+        }
+      )
     },
     setPendings(val) {
-      const list = [...this.Pending];
-      list.push(val);
-      this.setPending(list);
-      localStorage.setItem('Pending', JSON.stringify(list));
+      let list = [...this.Pending]
+      list.push(val)
+      this.setPending(list)
+      localStorage.setItem('Pending', JSON.stringify(list))
     },
     goPeriod() {
       this.$router.push({
         path: '/period',
-      });
+      })
     },
     goHistory() {
       this.$router.push({
         path: '/history',
-      });
+      })
     },
   },
-};
+}
 </script>
 
 <style scoped lang="scss">
-@import "../style/mixin.scss";
+@import '../style/mixin.scss';
 .body-box {
   height: calc(100% - 120px);
   .body-mian {
@@ -473,7 +574,7 @@ export default {
       flex-direction: column;
       align-items: center;
       p {
-        margin: 10%;
+        margin: 15% 10%;
         font-size: 50px;
         // word-wrap: break-word;
         // word-break: break-all;
@@ -540,9 +641,9 @@ export default {
           margin: 15px 0;
           color: #5784c1;
         }
-        // /deep/ .el-input-number {
-        //   width: 100% !important;
-        // }
+        /deep/ .el-input-number {
+          width: 100% !important;
+        }
         .money {
           font-size: 50px;
           display: block;
@@ -577,7 +678,7 @@ export default {
       .main-c-bottom {
         flex: 1;
         // min-height: 260px;
-        overflow-y: auto;
+        // overflow-y: auto;
         .bu_btn {
           font-size: 18px;
           @include font_color($font-color-theme);
@@ -622,6 +723,7 @@ export default {
     }
     .main-r {
       min-width: 600px;
+      min-height: 600px;
       overflow-y: auto;
       .r-title {
         width: 100%;

@@ -12,21 +12,30 @@
     <div class="center">
       <div class="center-box" v-show="Smile!==''">
         <span class="title_e">{{Smile}} IN YOUR WALLET</span>
-        <span class="title_n">{{BalanceOf[Smile]}}</span>
+        <!-- <el-tooltip
+          class="item"
+          :effect="Theme==='theme1'?'dark':'light'"
+          :content="Smile==='yyCRV'?BalanceOf:SuBalanceOf"
+          placement="bottom"
+        >
+        </el-tooltip>-->
+
+        <span class="title_n">{{Smile==='yyCRV'?BalanceOf:SuBalanceOf}}</span>
         <div class="titleicon" @click="goOptions">
-          <svg-icon :iconClass="Smile"></svg-icon>
+          <svg-icon :iconClass="Smile==='yyCRV'?'yyCRV':'xSushi'"></svg-icon>
         </div>
       </div>
     </div>
     <div class="right">
       <button class="app_btn" @click="jump" v-if="metaMaskAddressC===''">APP</button>
+      <!-- <button class="acc_btn" v-else>{{ellipsis(metaMaskAddress)}}</button> -->
       <div class="header-right-user" v-show="Pending.length===0&&metaMaskAddressC!==''">
         <el-dropdown @command="handleCommand" trigger="click" placement="bottom-start" size="small">
           <span class="user-menu-button">
             <span class="username">{{ellipsis(metaMaskAddressC)}}</span>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="copy">Copy</el-dropdown-item>
+            <!-- <el-dropdown-item command="copy">复制地址</el-dropdown-item> -->
             <el-dropdown-item command="exit">Disconnect</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -35,7 +44,7 @@
         <i class="el-icon-loading"></i>
         {{Pending.length}} Pending
       </div>
-      <button class="mar_btn" v-show="IsMar" v-if="path==='/markets'">MARKETS</button>
+      <button class="mar_btn" v-show="IsMar" v-if="path==='/marktes'">MARKETS</button>
       <button class="kets_btn" v-show="IsMar" @click="goMarkets" v-else>MARKETS</button>
     </div>
   </div>
@@ -45,12 +54,11 @@
 import { mapState, mapMutations } from 'vuex'
 import { getIEBF, getSUIEBF, getPadding } from '@/common/web3'
 import { BigNumber } from 'bignumber.js'
-import { copys } from '@/utils'
-import { NetWork, Tag, NameMapping } from '../config.js'
-
+import { NetWork, Tag } from '../config.js'
 export default {
   data() {
     return {
+      metaMaskAddress: '',
       timer: null,
       path: '',
       timer3: null,
@@ -65,14 +73,15 @@ export default {
       'IsMar',
       'IsExits',
       'BalanceOf',
+      'SuBalanceOf',
       'Pending',
-      'MetaMaskAddress',
     ]),
     metaMaskAddressC() {
       if (this.IsExits === 'no') {
-        return this.MetaMaskAddress
+        return this.metaMaskAddress
+      } else {
+        return ''
       }
-      return ''
     },
   },
   watch: {
@@ -83,7 +92,7 @@ export default {
       }
       this.path = to.path
     },
-    MetaMaskAddress(cur, old) {
+    metaMaskAddress(cur, old) {
       if (cur) {
         this.setAddress()
         this.getTimerData()
@@ -114,20 +123,25 @@ export default {
       'setDialog',
       'setIsExits',
       'setBalanceOf',
+      'setSuBalanceOf',
       'setPending',
-      'setMetaMaskAddress',
     ]),
     getTimerData() {
-      if (
-        (NetWork === 'ropsten' && ethereum.chainId === '0x3') ||
-        (NetWork !== 'ropsten' && ethereum.chainId === '0x1')
-      ) {
-        this.getTimer()
+      if (NetWork === 'ropsten') {
+        if (ethereum.chainId !== '0x3') {
+          return
+        } else {
+          this.getTimer()
+        }
+      } else {
+        if (ethereum.chainId !== '0x1') {
+          return
+        } else {
+          this.getTimer()
+        }
       }
     },
     getPadings() {
-      clearInterval(this.timer)
-      this.timer3 = null
       this.timer3 = setInterval(() => {
         this.Pending.forEach((item, idx) => {
           getPadding(item.id).then((res) => {
@@ -137,19 +151,19 @@ export default {
               if (res.status) {
                 msg =
                   item.name === 'approves'
-                    ? 'Authorization success!'
+                    ? `Authorization success!`
                     : // : `成功${item.msg}${item.number}${item.name}`
                       'Transaction submitted!'
                 type = 'success'
               } else {
                 msg =
                   item.name === 'approves'
-                    ? 'Privilege grant failed!'
-                    : 'The deal failed!'
+                    ? `Privilege grant failed!`
+                    : `The deal failed!`
                 type = 'error'
               }
               this.openMessageTips(msg, res.transactionHash, type)
-              const arr = [...this.Pending]
+              let arr = [...this.Pending]
               arr.splice(idx, 1)
               localStorage.setItem('Pending', JSON.stringify(arr))
               this.setPending(arr)
@@ -157,17 +171,17 @@ export default {
             }
           })
         })
-      }, 1000)
+      }, 3000)
     },
 
     openMessageTips(msg, id, type) {
       const _this = this
       const h = this.$createElement
-      const notifications = this.$notify({
+      let notifications = this.$notify({
         position: 'top-right',
         dangerouslyUseHTMLString: true,
         title: msg,
-        type,
+        type: type,
         offset: 100,
         duration: 10000,
         message: h('div', { class: 'message' }, [
@@ -186,43 +200,54 @@ export default {
     },
 
     openHash(id) {
-      const Win = window.open()
-      Win.opener = null
-      Win.location = this.tag
-        ? `https://ropsten.etherscan.io/tx/${id}`
-        : `https://etherscan.io/tx/${id}`
+      if (this.tag) {
+        window.open(`https://ropsten.etherscan.io/tx/${id}`, '_blank')
+      } else {
+        window.open(`https://etherscan.io/tx/${id}`, '_blank')
+      }
+      //  window.open(`https://etherscan.io/tx/${id}`, '_blank')
     },
     goMarkets() {
       this.$router.push({
-        path: '/markets',
+        path: '/marktes',
       })
     },
     getTimer() {
-      clearInterval(this.timer)
-      this.timer = null
       this.timer = setInterval(() => {
-        if (this.MetaMaskAddress !== '') {
+        if (this.metaMaskAddress !== '') {
           this.getBalanceOf()
         }
-      }, 1000)
+      }, 5000)
     },
     async getBalanceOf() {
-      const BalanceOfs = {}
-      for (const key in NameMapping) {
-        const balanceOf = await getIEBF(this.MetaMaskAddress, key)
-        const balanceOfBig = new BigNumber(balanceOf)
-          .dividedBy(1e18)
-          .toString(10)
-        BalanceOfs[key] = balanceOfBig
-      }
-      if (JSON.stringify(this.BalanceOf) !== JSON.stringify(BalanceOfs)) {
-        this.setBalanceOf(BalanceOfs)
-      }
+      const balanceOf = await getIEBF(this.metaMaskAddress, 'yyCRV')
+      const balanceOfBig = new BigNumber(balanceOf).dividedBy(1e18).toString(10)
+      this.setBalanceOf(balanceOfBig)
+      //sushi
+      const subalanceOf = await getSUIEBF(this.metaMaskAddress, 'xSushi')
+      const subalanceOfBig = new BigNumber(subalanceOf)
+        .dividedBy(1e18)
+        .toString(10)
+      this.setSuBalanceOf(subalanceOfBig)
     },
     handleCommand(command) {
       switch (command) {
         case 'copy':
-          copys(this, this.MetaMaskAddress)
+          const spanText = this.metaMaskAddress
+          const oInput = document.createElement('input')
+          oInput.value = spanText
+          document.body.appendChild(oInput)
+          oInput.select() // 选择对象
+          document.execCommand('Copy') // 执行浏览器复制命令
+          oInput.className = 'oInput'
+          oInput.style.display = 'none'
+          document.body.removeChild(oInput)
+          this.$notify({
+            title: 'Success',
+            message: 'Copy success!',
+            type: 'success',
+            offset: 100,
+          })
           break
         case 'exit':
           localStorage.setItem('IsExits', 'yes')
@@ -241,18 +266,16 @@ export default {
           const eth_accounts = await ethereum.request({
             method: 'eth_accounts',
           })
-          const metaMaskAddress =
+          this.metaMaskAddress =
             eth_accounts && eth_accounts.length > 0 ? eth_accounts[0] : ''
-          this.setMetaMaskAddress(metaMaskAddress)
           this.network = ethereum.chainId
         } else {
-          this.setMetaMaskAddress('')
+          this.metaMaskAddress = ''
         }
         ethereum.autoRefreshOnNetworkChange = false
         ethereum.on('accountsChanged', (accounts) => {
           if (this.IsExits === 'no') {
-            const metaMaskAddress = accounts.length === 0 ? '' : accounts[0]
-            this.setMetaMaskAddress(metaMaskAddress)
+            this.metaMaskAddress = accounts.length === 0 ? '' : accounts[0]
             this.$router.push({
               path: '/Index',
             })
@@ -290,6 +313,7 @@ export default {
               if (this.$route.path !== '/Index') {
                 this.backHome()
               }
+              return
           }
         })
       }
@@ -297,7 +321,7 @@ export default {
     ellipsis(value) {
       if (!value) return ''
       if (value.length > 10) {
-        return `${value.slice(0, 6)}...${value.slice(38, 42)}`
+        return value.slice(0, 6) + '...' + value.slice(38, 42)
       }
       return value
     },
@@ -307,7 +331,6 @@ export default {
       })
     },
     jump() {
-      console.log('dianji')
       this.setDialog(true)
       // this.$router.push({
       //   path: '/marktes',
@@ -322,8 +345,6 @@ export default {
   destroyed() {
     clearInterval(this.timer)
     this.timer = null
-    clearInterval(this.timer3)
-    this.timer3 = null
   },
 }
 </script>
@@ -380,7 +401,7 @@ export default {
       white-space: nowrap;
     }
     .titleicon {
-      font-size: 40px;
+      font-size: 55px;
       cursor: pointer;
     }
   }
