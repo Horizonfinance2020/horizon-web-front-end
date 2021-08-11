@@ -1,0 +1,172 @@
+[{
+  "inputs": [],
+  "constant": true,
+  "name": "info",
+  "outputs": [{
+    "type": "string",
+    "name": ""
+  }],
+  "stateMutability": "view",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [],
+  "constant": true,
+  "name": "token_bank",
+  "outputs": [{
+    "type": "address",
+    "name": ""
+  }],
+  "stateMutability": "view",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [],
+  "constant": true,
+  "name": "paused",
+  "outputs": [{
+    "type": "bool",
+    "name": ""
+  }],
+  "stateMutability": "view",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [],
+  "constant": true,
+  "name": "total_dropped",
+  "outputs": [{
+    "type": "uint256",
+    "name": ""
+  }],
+  "stateMutability": "view",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [],
+  "constant": true,
+  "name": "owner",
+  "outputs": [{
+    "type": "address",
+    "name": ""
+  }],
+  "stateMutability": "view",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [{
+    "type": "address",
+    "name": "newOwner"
+  }],
+  "constant": false,
+  "name": "transferOwnership",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [],
+  "constant": true,
+  "name": "token",
+  "outputs": [{
+    "type": "address",
+    "name": ""
+  }],
+  "stateMutability": "view",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [],
+  "constant": true,
+  "name": "merkle_root",
+  "outputs": [{
+    "type": "bytes32",
+    "name": ""
+  }],
+  "stateMutability": "view",
+  "payable": false,
+  "type": "function"
+}, {
+  "stateMutability": "nonpayable",
+  "inputs": [{
+    "type": "string",
+    "name": "_info"
+  }, {
+    "type": "address",
+    "name": "_token_bank"
+  }, {
+    "type": "address",
+    "name": "_token"
+  }, {
+    "type": "bytes32",
+    "name": "_merkle_root"
+  }],
+  "type": "constructor",
+  "payable": false
+}, {
+  "inputs": [{
+    "indexed": false,
+    "type": "address",
+    "name": "claimer"
+  }, {
+    "indexed": false,
+    "type": "address",
+    "name": "to"
+  }, {
+    "indexed": false,
+    "type": "uint256",
+    "name": "amount"
+  }],
+  "type": "event",
+  "name": "DropToken",
+  "anonymous": false
+}, {
+  "inputs": [{
+    "indexed": true,
+    "type": "address",
+    "name": "previousOwner"
+  }, {
+    "indexed": true,
+    "type": "address",
+    "name": "newOwner"
+  }],
+  "type": "event",
+  "name": "OwnershipTransferred",
+  "anonymous": false
+}, {
+  "inputs": [],
+  "constant": false,
+  "name": "pause",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [],
+  "constant": false,
+  "name": "unpause",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "payable": false,
+  "type": "function"
+}, {
+  "inputs": [{
+    "type": "address",
+    "name": "to"
+  }, {
+    "type": "uint256",
+    "name": "amount"
+  }, {
+    "type": "bytes32[]",
+    "name": "proof"
+  }],
+  "constant": false,
+  "name": "claim",
+  "outputs": [{
+    "type": "bool",
+    "name": ""
+  }],
+  "stateMutability": "nonpayable",
+  "payable": false,
+  "type": "function"
+}]
